@@ -1,0 +1,32 @@
+{
+  "name": "pure-postgres",
+  "version": "1.0.0",
+  "description": "PostgreSQL package to support realtime applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/ --recursive",
+    "eslint": "./node_modules/.bin/eslint ./lib/ --fix"
+  },
+  "keywords": [
+    "realtime",
+    "live",
+    "postgres",
+    "sql"
+  ],
+  "author": "planetarydev",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.5.0",
+    "fibers": "^2.0.0",
+    "json-sql-builder": "^1.0.7",
+    "lodash": "^4.17.4",
+    "md5": "^2.2.1",
+    "pg": "^7.3.0",
+    "synchron": "^1.0.7"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.6.1",
+    "mocha": "^3.5.0"
+  }
+}
