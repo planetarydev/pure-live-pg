@@ -1,5 +1,5 @@
 {
-  "name": "pure-postgres",
+  "name": "pure-live-pg",
   "version": "1.0.0",
   "description": "PostgreSQL package to support realtime applications",
   "main": "index.js",
