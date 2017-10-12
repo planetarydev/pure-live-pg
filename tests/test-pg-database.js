@@ -6,7 +6,7 @@ const { PGTable }		= require('../lib/pg-table');
 const { PGView }		= require('../lib/pg-view');
 
 let db = new PGDatabase({
-	enableConnectionPooling: true,
+	enablePooling: true,
 	connect: {
 		user: 'postgres',
 		host: 'localhost',
@@ -20,12 +20,12 @@ let db = new PGDatabase({
 describe('PgDatabase', function() {
 	describe('connect', function() {
 		describe('with Pooling', function() {
-			it('should async connect and release a connection', function(done) {
+			it('should async connect and disconnect to the database', function(done) {
 				expect(db).to.be.instanceOf(PGDatabase);
 
-				db.connect( (error, client) => {
+				db.connect( (error) => {
 					if (!error){
-						db.releaseConnection(client);
+						db.end();
 						return done();
 					} else {
 						throw new Error(error);
@@ -39,7 +39,21 @@ describe('PgDatabase', function() {
 				expect(query.values[1]).to.equal(1);*/
 			});
 
+			it('should sync connect and release a connection', function() {
+				expect(db).to.be.instanceOf(PGDatabase);
+
+				db.connectSync();
+				db.end();
+
+				/*expect(query).to.be.instanceOf(SQLQuery);
+				expect(query.sql).to.equal('(SELECT `first_name`, `last_name` FROM `people` WHERE `id` = ?) UNION (SELECT `first_name`, `last_name` FROM `more_people` WHERE `id` = ?)');
+				expect(query.values.length).to.equal(2);
+				expect(query.values[0]).to.equal(1);
+				expect(query.values[1]).to.equal(1);*/
+			});
+
 			it('should get a new client connection from the pool', function(done) {
+				db.connectSync();
 				var connection = db.getConnectionSync();
 				var result = connection.query('SELECT core_users.emailaddress AS email FROM core_users WHERE _id = \'1761a1be-8fb3-11e7-a232-bc307d530814\'', function(error, result){
 					db.releaseConnection(connection);
