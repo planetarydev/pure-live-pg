@@ -5,22 +5,29 @@ const { PGDatabase }	= require('../index');
 const { PGTable }		= require('../lib/pg-table');
 const { PGView }		= require('../lib/pg-view');
 
-let db = new PGDatabase({
-	enablePooling: true,
-	connect: {
-		user: 'postgres',
-		host: 'localhost',
-		database: 'pureworkx',
-		password: 'jahim2001!2',
-		port: 5432,
-		connectionLimit: 100
-	}
-});
+const DB_USER = 'postgres';
+const DB_HOST = 'localhost';
+const DB_DATABASE = 'pureworkx';
+const DB_PASSWORD = 'testtest';
+const DB_PORT = 5432;
+const DB_MAX_CONNECTION = 100;
 
 describe('PgDatabase', function() {
 	describe('connect', function() {
 		describe('with Pooling', function() {
 			it('should async connect and disconnect to the database', function(done) {
+				let db = new PGDatabase({
+					enablePooling: true,
+					connect: {
+						user: DB_USER,
+						host: DB_HOST,
+						database: DB_DATABASE,
+						password: DB_PASSWORD,
+						port: DB_PORT,
+						max: DB_MAX_CONNECTION
+					}
+				});
+
 				expect(db).to.be.instanceOf(PGDatabase);
 
 				db.connect( (error) => {
@@ -31,110 +38,371 @@ describe('PgDatabase', function() {
 						throw new Error(error);
 					}
 				});
-
-				/*expect(query).to.be.instanceOf(SQLQuery);
-				expect(query.sql).to.equal('(SELECT `first_name`, `last_name` FROM `people` WHERE `id` = ?) UNION (SELECT `first_name`, `last_name` FROM `more_people` WHERE `id` = ?)');
-				expect(query.values.length).to.equal(2);
-				expect(query.values[0]).to.equal(1);
-				expect(query.values[1]).to.equal(1);*/
 			});
 
-			it('should sync connect and release a connection', function() {
+
+			it('should get a new client connection from the pool and query directly', function(done) {
+				let db = new PGDatabase({
+					enablePooling: true,
+					connect: {
+						user: DB_USER,
+						host: DB_HOST,
+						database: DB_DATABASE,
+						password: DB_PASSWORD,
+						port: DB_PORT,
+						max: DB_MAX_CONNECTION
+					}
+				});
+				db.connect( (error) => {
+					if (!error){
+						var connection = db.getConnectionSync();
+						var result = connection.query('SELECT people.email AS email FROM people WHERE _id = \'6b0b584b-b036-11e7-b16a-bc307d530814\'', function(error, result){
+							db.releaseConnection(connection);
+							db.end();
+
+							expect(result.rows[0].email).to.equal('jrysdaleke@vistaprint.com');
+							done();
+						});
+					} else {
+						throw new Error(error);
+					}
+				});
+			});
+		});
+
+		describe('single connection - without Pooling', function() {
+			it('should async connect and disconnect to the database', function(done) {
+				let db = new PGDatabase({
+					enablePooling: false,
+					connect: {
+						user: DB_USER,
+						host: DB_HOST,
+						database: DB_DATABASE,
+						password: DB_PASSWORD,
+						port: DB_PORT,
+						max: DB_MAX_CONNECTION
+					}
+				});
+
 				expect(db).to.be.instanceOf(PGDatabase);
 
-				db.connectSync();
-				db.end();
-
-				/*expect(query).to.be.instanceOf(SQLQuery);
-				expect(query.sql).to.equal('(SELECT `first_name`, `last_name` FROM `people` WHERE `id` = ?) UNION (SELECT `first_name`, `last_name` FROM `more_people` WHERE `id` = ?)');
-				expect(query.values.length).to.equal(2);
-				expect(query.values[0]).to.equal(1);
-				expect(query.values[1]).to.equal(1);*/
-			});
-
-			it('should get a new client connection from the pool', function(done) {
-				db.connectSync();
-				var connection = db.getConnectionSync();
-				var result = connection.query('SELECT core_users.emailaddress AS email FROM core_users WHERE _id = \'1761a1be-8fb3-11e7-a232-bc307d530814\'', function(error, result){
-					db.releaseConnection(connection);
-
-					expect(result.rows[0].email).to.equal('ramon@gmail.com');
-					done();
+				db.connect( (error) => {
+					if (!error){
+						db.end();
+						return done();
+					} else {
+						throw new Error(error);
+					}
 				});
 			});
 
-			it('should query with a new connection in a sync way', function() {
-				var connection = db.getConnectionSync();
-				var results = db.querySync(connection, 'SELECT 1 AS test');
 
-				expect(results.rows[0].test).to.equal(1);
-				db.releaseConnection(connection);
+			it('should get a new client connection from the pool and query directly', function(done) {
+				let db = new PGDatabase({
+					enablePooling: false,
+					connect: {
+						user: DB_USER,
+						host: DB_HOST,
+						database: DB_DATABASE,
+						password: DB_PASSWORD,
+						port: DB_PORT,
+						max: DB_MAX_CONNECTION
+					}
+				});
+
+				db.connect( (error) => {
+					if (!error){
+						db.getConnection((error, connection) => {
+							if (error) return done(error);
+
+							var sql = 'SELECT people.email AS email FROM people WHERE _id = \'6b0b584b-b036-11e7-b16a-bc307d530814\'';
+							var result = connection.query(sql, function(error, result){
+								db.releaseConnection(connection);
+								db.end();
+
+								expect(result.rows[0].email).to.equal('jrysdaleke@vistaprint.com');
+								done();
+							});
+						});
+					} else {
+						throw new Error(error);
+					}
+				});
 			});
 		});
 	});
+
+
 	describe('query-Preperators', function() {
-		it('should define a new query preparator', function() {
+		it('should define a new query preparator', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
 			db.queryPreparations(function(connection, query){
 				// change the query to SELECT 1 as test
+				expect(query.sql).to.equal('SELECT NOW() as test');
 				query.sql = 'SELECT 1 as test';
 			});
 
 			expect(db._queryPreparators.length).to.equal(1);
-		});
 
-		it('should run the query preparator first by calling wpQuerySync()', function() {
-			var connection = db.getConnectionSync();
-			var result = db.wpQuerySync(connection, 'SELECT NOW() as test');
-			// because the query-preparator changed the sql-command
-			expect(result.rows[0].test).to.equal(1);
+			db.connect( (error) => {
+				if (error) return done(error);
+
+				db.getConnection((error, connection) => {
+					if (error) return done(error);
+
+					db.wpQuery(connection, 'SELECT NOW() as test', [], (error, result) => {
+						db.releaseConnection(connection);
+						db.end();
+
+						if (error) return done(error);
+
+						expect(result.rows[0].test).to.equal(1);
+						return done();
+					});
+				});
+			});
 		});
 	});
 
 	describe('new Table', function() {
-		it('should return a table object', function() {
-			var Users = db.Table('core_users');
-
-			expect(Users).to.be.instanceOf(PGTable);
-		});
-
-		it('should select one record from core_users', function() {
-			// remove the query preparators first
-			db._queryPreparators = [];
-
-			var Users = db.Table('core_users');
-			var results = Users.select({
-				emailaddress: 'rene@gmail.com'
-			}, {
-				$columns:['_id', 'emailaddress']
-			});
-
-			expect(results.rowCount).to.equal(1);
-			expect(results.rows[0].emailaddress).to.equal('rene@gmail.com');
-		});
-
-		it('should reactively get records from core_users', function(done) {
-			// remove the query preparators first
-			db._queryPreparators = [];
-
-			var Users = db.Table('core_users');
-			var reactiveQuery = Users.find({
-				created_by: 'peter'
-			});
-
-			var addCounter = 0;
-			reactiveQuery.on('added', (id, row) => {
-				addCounter++;
-			});
-
-			reactiveQuery.on('state', (currentState) => {
-				if (currentState == 'ready' && addCounter > 5){
-					reactiveQuery.destroy(function(error){
-						done();
-					});
+		it('should return a table object', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
 				}
 			});
 
-			reactiveQuery.run();
+			db.connect((error) => {
+				if (error) return done(error);
+
+				var People = db.Table('people', (error) => {
+					if (error) return done(error);
+
+					expect(People).to.be.instanceOf(PGTable);
+					db.end();
+					done();
+				});
+			});
+		});
+
+		it('should select one record from people', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('people', (error) => {
+					People.select({
+						email: 'jrysdaleke@vistaprint.com'
+					}, {
+						$columns:['_id', 'email']
+					}, (error, result) => {
+						if (error) return done(error);
+
+						expect(result.rowCount).to.equal(1);
+						expect(result.rows[0].email).to.equal('jrysdaleke@vistaprint.com');
+
+						db.end();
+
+						done();
+					});
+				});
+			});
+		});
+
+		it('should reactively get records from core_users', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('people', (error) => {
+
+					var reactiveQuery = People.find({
+						first_name: 'Koo'
+					});
+
+					var peopleCounter = 0;
+					reactiveQuery.on('added', (id, row) => {
+						peopleCounter++;
+					});
+
+					reactiveQuery.on('state', (currentState) => {
+						if (currentState == 'ready'){
+							expect(peopleCounter).to.equal(2);
+
+							reactiveQuery.destroy(function(error){
+								done();
+							});
+						}
+					});
+
+					reactiveQuery.run();
+				});
+			});
+		});
+
+		it('should delete one record from people', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('public.people', (error) => {
+					if (error) return done(error);
+
+					People.remove({
+						$or: [
+							{ _id: { $startsWith: 'abcdef' } },
+							{ first_name: 'Tester' }
+						]
+					}, (error, result) => {
+						if (error) return done(error);
+						done();
+					});
+				});
+			});
+		});
+
+		it('should insert one record into people', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('public.people', (error) => {
+					if (error) return done(error);
+
+					People.insert({
+						_id: 'abcdef0',
+						first_name: 'Tester',
+						last_name: 'Test',
+						email: 'tester0.test@test.com.de'
+					}, (error, result) => {
+						if (error) return done(error);
+						done();
+					});
+				});
+			});
+		});
+
+		it('should insert multiple records into people', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('public.people', (error) => {
+					if (error) return done(error);
+
+					People.insert([
+						{
+							_id: 'abcdef1',
+							first_name: 'Tester',
+							last_name: 'Test',
+							email: 'tester1.test@test.com.de'
+						}, {
+							_id: 'abcdef2',
+							first_name: 'Tester',
+							last_name: 'Test',
+							email: 'tester2.test@test.com.de'
+						}
+					], (error, result) => {
+						if (error) return done(error);
+
+						expect(result.rowCount).to.equal(2);
+						done();
+					});
+				});
+			});
+		});
+
+		it('should update records from people', function(done) {
+			let db = new PGDatabase({
+				enablePooling: true,
+				connect: {
+					user: DB_USER,
+					host: DB_HOST,
+					database: DB_DATABASE,
+					password: DB_PASSWORD,
+					port: DB_PORT,
+					max: DB_MAX_CONNECTION
+				}
+			});
+
+			db.connect((error) => {
+				var People = db.Table('public.people', (error) => {
+					if (error) return done(error);
+
+					People.update({
+						last_name: 'Test'
+					}, {
+						last_name: 'Test updated'
+					}, (error, result) => {
+						if (error) return done(error);
+
+						expect(result.rowCount).to.equal(3);
+						done();
+					});
+				});
+			});
 		});
 
 		it('should reactively update one record from core_users and get a change event', function(done) {
