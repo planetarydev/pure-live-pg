@@ -1,3 +1,6 @@
+drop table if exists people cascade;
+drop table if exists hobbies cascade;
+
 CREATE TABLE people (
     _id 		VARCHAR(45)	NOT NULL,
     _optimistic_id VARCHAR(45) NULL,
@@ -13,6 +16,36 @@ CREATE TABLE people (
 
 	CONSTRAINT pk_people PRIMARY KEY (_id)
 );
+
+-- Table: public.hobbies
+
+-- DROP TABLE public.hobbies;
+
+CREATE TABLE public.hobbies
+(
+    _id character varying(45) COLLATE pg_catalog."default" NOT NULL,
+    people_id character varying(45) COLLATE pg_catalog."default",
+    hobby character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT pk_hobbies PRIMARY KEY (_id),
+    CONSTRAINT fk_hobbies_people_id FOREIGN KEY (people_id)
+        REFERENCES public.people (_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+CREATE OR REPLACE VIEW public.hobbies_by_people AS
+ SELECT hobbies._id,
+    people.first_name,
+    people.last_name,
+    hobbies.hobby
+   FROM hobbies
+     JOIN people ON people._id::text = hobbies.people_id::text;
+
+
 
 INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avatar, city, postalcode, street) VALUES ('6b0b584b-b036-11e7-b16a-bc307d530814', 'Jeanette', 'Rysdale', 'jrysdaleke@vistaprint.com', 'Female', '103.15.81.85', 'https://robohash.org/ullamquaeratearum.jpg?size=50x50&set=set1', 'Houmen', '', 'Derek');
 INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avatar, city, postalcode, street) VALUES ('6b0b58c8-b036-11e7-b16a-bc307d530814', 'Garwood', 'Erskin', 'gerskinev@nytimes.com', 'Male', '145.84.221.106', 'https://robohash.org/etquaeratarchitecto.jpg?size=50x50&set=set1', 'Jemielno', '56-209', 'Sauthoff');
@@ -1014,3 +1047,6 @@ INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avata
 INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avatar, city, postalcode, street) VALUES ('6b0c25de-b036-11e7-b16a-bc307d530814', 'Celinda', 'Jarley', 'cjarley6g@sitemeter.com', 'Female', '54.95.97.145', 'https://robohash.org/verodoloremea.jpg?size=50x50&set=set1', 'Hazlov', '350 02', 'Crowley');
 INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avatar, city, postalcode, street) VALUES ('6b0c2604-b036-11e7-b16a-bc307d530814', 'Care', 'Thomtson', 'cthomtson2m@chicagotribune.com', 'Male', '23.110.27.138', 'https://robohash.org/culpanihilaut.jpg?size=50x50&set=set1', 'Orly', '94537 CEDEX', 'Eastlawn');
 INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avatar, city, postalcode, street) VALUES ('6b0c262b-b036-11e7-b16a-bc307d530814', 'Bowie', 'Thorlby', 'bthorlbybn@cisco.com', 'Male', '255.158.2.101', 'https://robohash.org/quiainquidem.jpg?size=50x50&set=set1', 'The Valley', '', 'Mccormick');
+
+insert into hobbies (_id, people_id, hobby) VALUES ('hobby_id0001', '6b0b584b-b036-11e7-b16a-bc307d530814', 'Ski');
+insert into hobbies (_id, people_id, hobby) VALUES ('hobby_id0002', '6b0b584b-b036-11e7-b16a-bc307d530814', 'Football');
