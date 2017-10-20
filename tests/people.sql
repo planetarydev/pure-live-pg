@@ -39,6 +39,7 @@ TABLESPACE pg_default;
 
 CREATE OR REPLACE VIEW public.hobbies_by_people AS
  SELECT hobbies._id,
+ 	hobbies.people_id,
     people.first_name,
     people.last_name,
     hobbies.hobby

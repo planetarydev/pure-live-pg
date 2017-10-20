@@ -584,7 +584,7 @@ describe('PgDatabase', function() {
 		let globalStatementCount = 0;
 
 		it('should Setup 100 Tables, Views and queries of each Object', function(done) {
-			this.timeout(5000);
+			this.timeout(15000);
 
 			globalDb.connect(error => {
 				if (error) return done(error);
@@ -607,76 +607,79 @@ describe('PgDatabase', function() {
 							}, (error, result)=>{
 								//console.log(error, result);
 								var fnCnt = 0;
-								for (var i=0; i<1000; i++) {
-									// create 100 times a different select
-									fnCnt++;
-									if (fnCnt >= result.rowCount) fnCnt = 0;
+								var count = 0;
+								async.whilst(
+								    function() { return count < 1000; },
+								    function(callback) {
+								        count++;
 
-									var cid = 'cid' + i; // dummy client/session id
-									var q = People.find({
-										first_name: result.rows[fnCnt].first_name // result.rows[(Math.random() * result.rowCount) | 0].first_name
-									}, {
-										clientId: cid
-									});
-									q.on('added', (id, row)=>{
-										var hq = Hobbies.find({
-											people_id: id
+										// create 100 times a different select
+										fnCnt++;
+										if (fnCnt >= result.rowCount) fnCnt = 0;
+
+										var cid = 'cid' + count; // dummy client/session id
+										var q = People.find({
+											first_name: result.rows[fnCnt].first_name // result.rows[(Math.random() * result.rowCount) | 0].first_name
 										}, {
 											clientId: cid
 										});
-										hq.on('added', (id, row)=>{});
-										hq.on('changed', (id, row)=>{});
-										hq.on('removed', (id)=>{
-											hobbyDeleteCounter++;
-										});
-										hq.on('state', (currentState)=>{});
-										hq.run();
-										hobbyQuery.push(hq);
+										q.on('added', (id, row)=>{
+											var hq = Hobbies.find({
+												people_id: id
+											}, {
+												clientId: cid
+											});
+											hq.on('added', (id, row)=>{});
+											hq.on('changed', (id, row)=>{});
+											hq.on('removed', (id)=>{
+												hobbyDeleteCounter++;
+											});
+											hq.on('state', (currentState)=>{});
+											hq.run();
+											hobbyQuery.push(hq);
 
-										var hbp = HobbiesByPeople.find({
-											people_id: id
-										}, {
-											clientId: cid
+											var hbp = HobbiesByPeople.find({
+												people_id: id
+											}, {
+												clientId: cid
+											});
+											hbp.on('added', (id, row)=>{});
+											hbp.on('changed', (id, row)=>{});
+											hbp.on('removed', (id)=>{
+												hobbyByPeopleDeleteCounter++
+											});
+											hbp.on('state', (currentState)=>{});
+											hbp.run();
+											hobbiesByPeopleQuery.push(hbp);
 										});
-										hbp.on('added', (id, row)=>{});
-										hbp.on('changed', (id, row)=>{});
-										hbp.on('removed', (id)=>{
-											hobbyByPeopleDeleteCounter++
-										});
-										hbp.on('state', (currentState)=>{});
-										hbp.run();
-										hobbiesByPeopleQuery.push(hbp);
-									});
 
-									q.on('changed', (id, row)=>{});
-									q.on('removed', (id)=>{});
-									q.on('state', (currentState)=>{});
-									q.run();
+										q.on('changed', (id, row)=>{});
+										q.on('removed', (id)=>{});
+										q.on('state', (currentState)=>{});
+										q.run();
 
-									peopleQuery.push(q);
-								}
-								return callback();
+										peopleQuery.push(q);
+										return callback(null, count);
+								    },
+								    function (err, n) {
+										return callback();
+								    }
+								);
 							});
 						});
 					}
 				], (error) => {
 					if (error) return done(error);
 					// after init success
-					expect(peopleQuery.length).to.be.above(99);
+					expect(peopleQuery.length).to.be.above(990);
 					setTimeout(()=>{
-						expect(hobbyQuery.length).to.be.above(200);
-						expect(hobbiesByPeopleQuery.length).to.be.above(200);
+						expect(hobbyQuery.length).to.be.above(2000);
+						expect(hobbiesByPeopleQuery.length).to.be.above(2000);
 						return done();
 					}, 4000)
 				});
 			});
 		});
-
-		/*console.log(Object.keys(globalDb._queryCache).length);
-		console.log(globalDb._queriesByTable);
-		console.log('peopleQueries:', peopleQuery.length);
-		console.log('hobbyQueries:', hobbyQuery.length);
-		console.log('hobbiesByPeopleQueries:', hobbiesByPeopleQuery.length);*/
 
 		/*globalDb.getConnection((error, connection)=>{
 			connection.query('SELECT count(*) FROM core_reactive', (error, result)=>{
@@ -685,8 +688,15 @@ describe('PgDatabase', function() {
 				console.log('CORE_REACT:', result);
 			});
 		})*/
-		it('should delete in a short time', function(done) {
+		it('should delete Hobbies in a short time', function(done) {
 			this.timeout(5000);
+
+			/*
+			console.log('Total registered Queries:', Object.keys(globalDb._queryCache).length);
+			console.log('peopleQueries:', peopleQuery.length);
+			console.log('hobbyQueries:', hobbyQuery.length);
+			console.log('hobbiesByPeopleQueries:', hobbiesByPeopleQuery.length);
+			*/
 
 			Hobbies.remove({
 				hobby: 'Performacetracking'
@@ -694,6 +704,19 @@ describe('PgDatabase', function() {
 				return done(error);
 			});
 		});
+
+		it('should insert Marc Tester M. as new People in a short time', function(done) {
+			this.timeout(5000);
+
+			People.insert({
+				_id: 'people0001M',
+				first_name: 'Marc Tester',
+				last_name: 'Performace-Test'
+			}, 'cid50', (error, result) => {
+				return done(error);
+			});
+		});
+
 
 		it('should delete a People in a short time', function(done) {
 			this.timeout(5000);
@@ -728,7 +751,7 @@ describe('PgDatabase', function() {
 			this.timeout(5000);
 
 			People.insert({
-				_id: 'people0001',
+				_id: 'people0001X',
 				first_name: 'Marc Tester',
 				last_name: 'Performace-Test'
 			}, 'cid50', (error, result) => {
@@ -738,8 +761,8 @@ describe('PgDatabase', function() {
 
 		it('should work on all other queries and in parallel get some new hobbies to insert', function(done) {
 			this.timeout(9000);
-
 			var cnt = globalDb._queryCount;
+			//console.log('Start', cnt);
 			setTimeout(()=>{
 				Hobbies.insert([
 					{
@@ -752,12 +775,29 @@ describe('PgDatabase', function() {
 						hobby: 'Performacetracking'
 					}
 				], 'cid50', (error, result) => {
-					console.log('DONE.', globalDb._queryCount - cnt);
+					//console.log('DONE.', globalDb._queryCount, globalDb._queryCount - cnt);
 					return done(error);
 				});
 
-				console.log(globalDb._queryCount - cnt);
-				return done();
+				//console.log('After 500ms:', globalDb._queryCount, globalDb._queryCount - cnt);
+				//return done();
+			}, 500);
+		});
+
+		it('should wait till all work is done', function(done) {
+			this.timeout(15000);
+
+			var lastOpCnt = globalDb._queryCount;
+			var intv = setInterval(()=>{
+				if (lastOpCnt != globalDb._queryCount) {
+					//console.log('check at:', globalDb._queryCount - lastOpCnt);
+					lastOpCnt = globalDb._queryCount;
+				} else {
+					clearInterval(intv);
+					//console.log('Staled queries:', globalDb._staledQueries.length);
+					//console.log('Finished with:', globalDb._queryCount);
+					done();
+				}
 			}, 500);
 		});
 	});
