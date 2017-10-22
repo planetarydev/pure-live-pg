@@ -37,6 +37,46 @@ WITH (
 )
 TABLESPACE pg_default;
 
+-- FUNCTION: public."addHobbyFromPeople"()
+
+-- DROP FUNCTION public."addHobbyFromPeople"();
+
+CREATE FUNCTION public."addHobbyFromPeople"()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+    ROWS 0
+AS $BODY$
+BEGIN
+    INSERT INTO hobbies (
+      _id,
+      people_id,
+      hobby
+    )
+    VALUES (
+        concat('hobby_triggerid', NEW._id),
+        NEW._id,
+        'Performacetracking'
+    );
+
+    RETURN NULL;
+END;
+
+$BODY$;
+
+ALTER FUNCTION public."addHobbyFromPeople"()
+    OWNER TO postgres;
+
+
+CREATE TRIGGER "addHobby"
+    AFTER INSERT
+    ON public.people
+    FOR EACH ROW
+    EXECUTE PROCEDURE public."addHobbyFromPeople"();
+
+
+
 CREATE OR REPLACE VIEW public.hobbies_by_people AS
  SELECT hobbies._id,
  	hobbies.people_id,
