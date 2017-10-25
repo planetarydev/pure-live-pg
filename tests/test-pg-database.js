@@ -57,8 +57,11 @@ describe('PgDatabase', function() {
 					}
 				});
 				db.connect( (error) => {
-					if (!error){
-						var connection = db.getConnectionSync();
+					if (error) return done(error);
+
+					db.getConnection((error, connection)=>{
+						if (error) return done(error);
+
 						var result = connection.query('SELECT people.email AS email FROM people WHERE _id = \'6b0b584b-b036-11e7-b16a-bc307d530814\'', function(error, result){
 							db.releaseConnection(connection);
 							db.end();
@@ -66,9 +69,7 @@ describe('PgDatabase', function() {
 							expect(result.rows[0].email).to.equal('jrysdaleke@vistaprint.com');
 							done();
 						});
-					} else {
-						throw new Error(error);
-					}
+					});
 				});
 			});
 		});
@@ -706,7 +707,7 @@ describe('PgDatabase', function() {
 					{hobby: 'Performacetracking'}
 				]
 
-			}, 'cid50', (error, result)=> {
+			}, {clientId: 'cid50'}, (error, result)=> {
 				return done(error);
 			});
 		});
@@ -718,7 +719,7 @@ describe('PgDatabase', function() {
 				_id: 'people0001M',
 				first_name: 'Marc Tester',
 				last_name: 'Performace-Test'
-			}, 'cid50', (error, result) => {
+			}, {clientId: 'cid50'}, (error, result) => {
 				return done(error);
 			});
 		});
@@ -729,7 +730,7 @@ describe('PgDatabase', function() {
 
 			People.remove({
 				first_name: 'Marc Tester'
-			}, 'cid50', (error, result)=> {
+			}, {clientId: 'cid50'}, (error, result)=> {
 				return done(error);
 			});
 		});
@@ -747,7 +748,7 @@ describe('PgDatabase', function() {
 					people_id: '6b0b584b-b036-11e7-b16a-bc307d530814',
 					hobby: 'Performancetracking'
 				}
-			], 'cid50', (error, result) => {
+			], {clientId: 'cid50'}, (error, result) => {
 				//console.log(globalDb._queryCount - cnt);
 				return done(error);
 			});
@@ -760,7 +761,7 @@ describe('PgDatabase', function() {
 				_id: 'people0001X',
 				first_name: 'Marc Tester',
 				last_name: 'Performace-Test'
-			}, 'cid50', (error, result) => {
+			}, {clientId: 'cid50'}, (error, result) => {
 				return done(error);
 			});
 		});
@@ -780,7 +781,7 @@ describe('PgDatabase', function() {
 						people_id: '6b0bf2e3-b036-11e7-b16a-bc307d530814',
 						hobby: 'Performancetracking'
 					}
-				], 'cid50', (error, result) => {
+				], {clientId: 'cid50'}, (error, result) => {
 					//console.log('DONE.', globalDb._queryCount, globalDb._queryCount - cnt);
 					return done(error);
 				});
@@ -822,42 +823,15 @@ describe('PgDatabase', function() {
 					async.eachSeries(peopleQuery, (q, callback)=>{
 						q.destroy(callback);
 					}, (error)=>{
+						if (error) return done(error);
+
 						console.log(globalDb._queriesByTable);
 						expect(Object.keys(globalDb._queryCache).length).to.be.equal(0);
+						globalDb.end();
 						done();
 					});
 				});
 			});
-
-			/*for(var i=0, max=hobbiesByPeopleQuery; i<max;i++){
-				hobbiesByPeopleQuery[i].destroy(function(error){
-					if (error) console.log(error);
-				});
-			}
-
-			for(var i=0, max=hobbyQuery; i<max;i++){
-				hobbyQuery[i].destroy();
-			}
-
-			for(var i=0, max=peopleQuery; i<max;i++){
-				peopleQuery[i].destroy();
-			}*/
-
-			/*_.forEach(hobbiesByPeopleQuery, (q)=>{
-				q.destroy();
-			});
-
-			_.forEach(hobbyQuery, (q)=>{
-				q.destroy();
-			});
-
-			_.forEach(peopleQuery, (q)=>{
-				q.destroy();
-			});*/
-
-			//console.log(globalDb._queryCache);
-			//console.log(globalDb._queriesByTable);
-
 		});
 	});
 });
