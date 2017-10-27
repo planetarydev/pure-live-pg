@@ -374,6 +374,7 @@ describe('PgDatabase', function() {
 						if (error) return done(error);
 
 						expect(result.rowCount).to.equal(2);
+
 						db.end();
 						done();
 					});
@@ -518,10 +519,6 @@ describe('PgDatabase', function() {
 									readyCounter = 0;
 								reactiveHobbies.on('added', (id, row) => {
 									hobbyCounter++;
-
-									if (hobbyCounter == 2) {
-										// after adding two new hobbies
-									}
 								});
 
 								reactiveHobbies.on('state', (currentState) => {
@@ -530,7 +527,10 @@ describe('PgDatabase', function() {
 										if (readyCounter == 1) expect(hobbyCounter).to.be.equal(1);
 										if (readyCounter == 2) {
 											expect(hobbyCounter).to.be.equal(2);
-											return callback();
+
+											reactiveHobbies.destroy((error)=>{
+												callback()
+											});
 										}
 									}
 								});
@@ -825,10 +825,9 @@ describe('PgDatabase', function() {
 					}, (error)=>{
 						if (error) return done(error);
 
-						console.log(globalDb._queriesByTable);
 						expect(Object.keys(globalDb._queryCache).length).to.be.equal(0);
 						globalDb.end();
-						done();
+						return done();
 					});
 				});
 			});

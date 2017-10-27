@@ -15,7 +15,7 @@ const DB_PASSWORD = 'testtest';
 const DB_PORT = /*version 10.0*/ 5433; // or port /*version 9.5*/ 5432;
 const DB_MAX_CONNECTION = 90;
 
-describe('PgDatabase', function() {
+describe('PGTable', function() {
 	describe('Upsert Support', function() {
 		it('should insert if not exists and update if confict is given', function(done) {
 			let db = new PGDatabase({
@@ -31,7 +31,7 @@ describe('PgDatabase', function() {
 			});
 			var People;
 
-			async.waterfall([
+			async.series([
 				function(callback){
 					db.connect(callback);
 				},

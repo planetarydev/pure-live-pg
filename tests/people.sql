@@ -2,17 +2,16 @@ drop table if exists people cascade;
 drop table if exists hobbies cascade;
 
 CREATE TABLE people (
-    _id 		VARCHAR(45)	NOT NULL,
-    _optimistic_id VARCHAR(45) NULL,
-    first_name 	VARCHAR(50) DEFAULT NULL,
-    last_name 	VARCHAR(50) DEFAULT NULL,
-    email 		VARCHAR(50) DEFAULT NULL,
-    gender 		VARCHAR(50) DEFAULT NULL,
-    ip_address 	VARCHAR(20) DEFAULT NULL,
-    avatar 		VARCHAR(1000) DEFAULT NULL,
-    city 		VARCHAR(50) DEFAULT 'New York',
-    postalcode 	VARCHAR(50) DEFAULT NULL,
-    street 		VARCHAR(50) DEFAULT NULL,
+    _id 		TEXT		 NOT NULL,
+    first_name 	TEXT DEFAULT NULL,
+    last_name 	TEXT DEFAULT NULL,
+    email 		TEXT DEFAULT NULL,
+    gender 		TEXT DEFAULT NULL,
+    ip_address 	TEXT DEFAULT NULL,
+    avatar 		TEXT DEFAULT NULL,
+    city 		TEXT DEFAULT 'New York',
+    postalcode 	TEXT DEFAULT NULL,
+    street 		TEXT DEFAULT NULL,
 
 	CONSTRAINT pk_people PRIMARY KEY (_id)
 );
@@ -23,9 +22,9 @@ CREATE TABLE people (
 
 CREATE TABLE public.hobbies
 (
-    _id character varying(45) COLLATE pg_catalog."default" NOT NULL,
-    people_id character varying(45) COLLATE pg_catalog."default",
-    hobby character varying(255) COLLATE pg_catalog."default",
+    _id 		TEXT NOT NULL,
+    people_id 	TEXT,
+    hobby 		TEXT,
     CONSTRAINT pk_hobbies PRIMARY KEY (_id),
     CONSTRAINT fk_hobbies_people_id FOREIGN KEY (people_id)
         REFERENCES public.people (_id) MATCH SIMPLE
@@ -39,14 +38,11 @@ TABLESPACE pg_default;
 
 -- FUNCTION: public."addHobbyFromPeople"()
 
--- DROP FUNCTION public."addHobbyFromPeople"();
+DROP FUNCTION IF EXISTS public."addHobbyFromPeople"();
 
 CREATE FUNCTION public."addHobbyFromPeople"()
     RETURNS trigger
     LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE NOT LEAKPROOF
-    ROWS 0
 AS $BODY$
 BEGIN
     INSERT INTO hobbies (
@@ -1091,3 +1087,5 @@ INSERT INTO people (_id, first_name, last_name, email, gender, ip_address, avata
 
 insert into hobbies (_id, people_id, hobby) VALUES ('hobby_id0001', '6b0b584b-b036-11e7-b16a-bc307d530814', 'Ski');
 insert into hobbies (_id, people_id, hobby) VALUES ('hobby_id0002', '6b0b584b-b036-11e7-b16a-bc307d530814', 'Football');
+
+select * from people limit 10
