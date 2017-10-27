@@ -91,7 +91,7 @@ describe('PgDatabase', function() {
 					}
 				], (error)=>{
 					db.end();
-					return done();
+					return done(error);
 				});
 			});
 		});
@@ -169,7 +169,7 @@ describe('PgDatabase', function() {
 					}
 				], (error)=>{
 					db.end();
-					return done();
+					return done(error);
 				});
 			});
 		});
@@ -189,6 +189,7 @@ describe('PgDatabase', function() {
 				});
 				var People;
 				var peopleCount = 0;
+				var reactivePeoples;
 
 				async.waterfall([
 					function(callback){
@@ -207,7 +208,7 @@ describe('PgDatabase', function() {
 						});
 					},
 					function(callback){
-						var reactivePeoples = People.find({
+						reactivePeoples = People.find({
 							last_name: 'Transaction'
 						}, {
 							clientId: 'TestClient'
@@ -264,8 +265,16 @@ describe('PgDatabase', function() {
 						});
 					}
 				], (error)=>{
-					db.end();
-					return done();
+					if (reactivePeoples){
+						reactivePeoples.stop();
+						reactivePeoples.destroy((error)=>{
+							db.end();
+							return done(error);
+						});
+					} else {
+						db.end();
+						return done(error);
+					}
 				});
 			});
 		});
