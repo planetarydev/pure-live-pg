@@ -1,6 +1,6 @@
 {
   "name": "pure-live-pg",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "PostgreSQL package to support realtime applications",
   "main": "index.js",
   "scripts": {
