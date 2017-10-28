@@ -16,8 +16,8 @@ const DB_PORT = /*version 10.0*/ 5433; // or port /*version 9.5*/ 5432;
 const DB_MAX_CONNECTION = 90;
 
 describe('Connections', function() {
-	/* ONLY for Tests on creating an new issue for the pg-module
-
+	// ONLY for Tests on creating an new issue for the pg-module
+	/*
 	describe('native node-pg', function() {
 		it('should use all connections and wait if there is no more', function(done) {
 			this.timeout(15000);
@@ -39,7 +39,7 @@ describe('Connections', function() {
 				database: DB_DATABASE,
 				password: DB_PASSWORD,
 				port: DB_PORT,
-				max: 90
+				max: 20
 			});
 			var connCount = 0;
 
@@ -53,7 +53,7 @@ describe('Connections', function() {
 			});
 
 			// Testing the pool
-			async.times(100, function(n, next){
+			async.times(25, function(n, next){
 				pool.connect((error, connection, release) => {
 					// release the first client to pool after 1 second,
 					// the second client after 2 seconds...
