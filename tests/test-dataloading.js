@@ -69,19 +69,23 @@ describe('PGTable', function() {
 
 					reactivePeople.on('info', (infos) => {
 						peopleInfos = infos;
+						//console.log('onInfo:', infos);
+						//console.log('StaledQueries:', db._staledQueries);
 					});
 
 					reactivePeople.on('ready', () => {
-						if (loadNext == 0){
-							expect(peopleCount).to.equal(10);
-							expect(peopleInfos.totalRowCount).to.equal(75);
+						//setTimeout(()=>{
+							if (loadNext == 0){
+								expect(peopleCount).to.equal(10);
+								expect(peopleInfos.totalRowCount).to.equal(75);
 
-							return callback(null);
-						}
-						else if (loadNext == 1){
-							expect(peopleCount).to.equal(20);
-							expect(peopleInfos.totalRowCount).to.equal(75);
-						}
+								return callback(null);
+							}
+							else if (loadNext == 1){
+								expect(peopleCount).to.equal(20);
+								expect(peopleInfos.totalRowCount).to.equal(75);
+							}
+						//}, 1000);
 					});
 
 					reactivePeople.run();
@@ -187,14 +191,14 @@ describe('PGTable', function() {
 						if (step == 0){
 							expect(peopleCount).to.equal(10);
 							expect(peopleInfos.totalRowCount).to.equal(75);
-							expect(peopleInfos.totalPages).to.equal(8);
+							expect(peopleInfos.totalPageCount).to.equal(8);
 
 							return callback(null);
 						}
 						else if (step == 1){
 							expect(peopleCount).to.equal(10);
 							expect(peopleInfos.totalRowCount).to.equal(75);
-							expect(peopleInfos.totalPages).to.equal(8);
+							expect(peopleInfos.totalPageCount).to.equal(8);
 						}
 					});
 
@@ -218,7 +222,7 @@ describe('PGTable', function() {
 							clientId: 'testClient'
 						}, next);
 					}, function(error, results){
-						expect(peopleInfos.totalPages).to.equal(9);
+						expect(peopleInfos.totalPageCount).to.equal(9);
 						expect(peopleInfos.totalRowCount).to.equal(81);
 						expect(peopleCount).to.equal(10);
 
