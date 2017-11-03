@@ -1,7 +1,7 @@
 {
   "name": "pure-live-pg",
   "version": "1.0.23",
-  "description": "PostgreSQL package to support realtime applications",
+  "description": "PostgreSQL driver to support realtime applications",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/ --recursive",
@@ -10,20 +10,20 @@
   "keywords": [
     "realtime",
     "live",
+	"reactive",
+	"postgreSQL",
     "postgres",
+	"pg",
     "sql"
   ],
   "author": "planetarydev",
   "license": "MIT",
   "dependencies": {
     "async": "^2.5.0",
-    "fibers": "^2.0.0",
     "json-sql-builder": "^1.0.12",
     "lodash": "^4.17.4",
-    "md5": "^2.2.1",
     "pg": "^7.3.0",
-    "shortid": "^2.2.8",
-    "synchron": "^1.0.7"
+    "shortid": "^2.2.8"
   },
   "devDependencies": {
     "chai": "^4.1.2",
