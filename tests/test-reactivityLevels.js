@@ -413,7 +413,7 @@ describe('PGReactiveQuery', function() {
 				function(callback){
 					step = 1;
 					// should update a people, but with out an reactive effect,
-					// because the reactivity is set to "own" and we dont specify the client-id
+					// because the reactivity is set to "userdefined" function
 					People.update({ first_name: 'Koo' }, {
 						city: 'Cologne'
 					}, (error, result)=>{
