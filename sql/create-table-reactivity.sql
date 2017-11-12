@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "@@ownSchema"."reactivity"
+CREATE UNLOGGED TABLE IF NOT EXISTS "@@ownSchema"."reactivity"
 (
 	query_id	TEXT 	NOT NULL,
 	row_id		TEXT	NOT NULL,
