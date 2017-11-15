@@ -38,7 +38,8 @@ describe('PgTable', function() {
 				function(callback){
 					PeopleProfile = db.Table('people_profile', {
 						_id: { $column: { $type: 'TEXT', $notNull: true } },
-						comment: { $column: { $type: 'TEXT' } },
+						comment: { $column: { $type: 'TEXT', $default: 'Awesome!' } },
+						testBool: { $column: { $type: 'BOOLEAN', $default: false } },
 						dateOfBirth: { $column: { $type: 'TIMESTAMP', $notNull:true } },
 
 						pk_people_profile: { $constraint: { $primary: true, $columns: '_id'} },
