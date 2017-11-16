@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.5.0",
-    "json-sql-builder": "^1.0.17",
+    "json-sql-builder": "^1.0.18",
     "lodash": "^4.17.4",
     "pg": "^7.3.0",
     "shortid": "^2.2.8"
