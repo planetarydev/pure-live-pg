@@ -19,15 +19,15 @@
   "author": "planetarydev",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.5.0",
-    "json-sql-builder": "^1.0.20",
+    "async": "^2.6.0",
+    "json-sql-builder": "^1.0.21",
     "lodash": "^4.17.4",
-    "pg": "^7.3.0",
+    "pg": "^7.4.0",
     "shortid": "^2.2.8"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "eslint": "^4.9.0",
+    "eslint": "^4.11.0",
     "mocha": "^3.5.3"
   }
 }
