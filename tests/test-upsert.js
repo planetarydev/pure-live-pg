@@ -16,8 +16,10 @@ const DB_PORT = /*version 10.0*/ 5433; // or port /*version 9.5*/ 5432;
 const DB_MAX_CONNECTION = 90;
 
 describe('PGTable', function() {
-	describe('Upsert Support', function() {
-		it('should insert if not exists and update if confict is given', function(done) {
+	describe('A Upsert Support', function() {
+		it('A should insert if not exists and update if conflict is given', function(done) {
+			this.timeout(5000);
+
 			let db = new PGDatabase({
 				enablePooling: true,
 				connect: {

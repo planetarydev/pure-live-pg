@@ -39,14 +39,14 @@ describe('PgTable', function() {
 					PeopleProfile = db.Table('people_profile', {
 						_id: { $column: { $type: 'TEXT', $notNull: true } },
 						comment: { $column: { $type: 'TEXT', $default: 'Awesome!' } },
-						testBool: { $column: { $type: 'BOOLEAN', $default: false } },
+						testBool: { $column: { $type: 'BOOLEAN', $default: 'f' } },
 						dateOfBirth: { $column: { $type: 'TIMESTAMP', $notNull:true } },
 
 						pk_people_profile: { $constraint: { $primary: true, $columns: '_id'} },
 
-						$tableOptions:{
-							$tablespace: "pg_default",
-							$with: { $oids: true }
+						$tablespace: "pg_default",
+						$tableOptions: {
+							OIDS: true
 						}
 					}, callback);
 				},

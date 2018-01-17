@@ -12,6 +12,7 @@ CREATE TABLE people (
     city 		TEXT DEFAULT 'New York',
     postalcode 	TEXT DEFAULT NULL,
     street 		TEXT DEFAULT NULL,
+	modified_at timestamp without time zone,
 
 	CONSTRAINT pk_people PRIMARY KEY (_id)
 );

@@ -54,7 +54,7 @@ describe('PGTable', function() {
 							last_name: 0
 						}
 					});
-					expect(newOptions.$columns.length).to.equal(8);
+					expect(newOptions.$columns.length).to.equal(9);
 					expect(newOptions.$columns).to.include.members(['_id', 'email', 'gender', 'ip_address', 'avatar', 'city', 'postalcode', 'street']);
 
 					return callback();

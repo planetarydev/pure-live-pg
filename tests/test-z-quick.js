@@ -15,9 +15,9 @@ const DB_PASSWORD = 'testtest';
 const DB_PORT = /*version 10.0*/ 5433; // or port /*version 9.5*/ 5432;
 const DB_MAX_CONNECTION = 90;
 
-describe('PGTable', function() {
-	describe('Upsert Support', function() {
-		it('should insert if not exists and update if confict is given', function(done) {
+describe('Quicktest', function() {
+	describe('zzzz', function() {
+		it('should do this quick test', function(done) {
 			/*let db = new PGDatabase({
 				enablePooling: true,
 				connect: {
@@ -35,6 +35,7 @@ describe('PGTable', function() {
 			});
 
 			expect(query.sql).to.equal('.');*/
+			return done();
 		});
 	});
 });

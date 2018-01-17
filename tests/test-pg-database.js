@@ -604,7 +604,7 @@ describe('PgDatabase', function() {
 							People.select({}, {
 								$columns: ['first_name'],
 								$groupBy: ['first_name'],
-								$having: { $expr: { $count: 'first_name', $gt: 1 } }
+								$having: { $: { $count: 'first_name', $gt: 1 } }
 							}, (error, result)=>{
 								//console.log(error, result);
 								var fnCnt = 0;
