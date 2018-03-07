@@ -3,3 +3,4 @@
 module.exports.PGDatabase = require('./lib/pg-database').PGDatabase;
 module.exports.PGTable = require('./lib/pg-table').PGTable;
 module.exports.PGView = require('./lib/pg-view').PGView;
+module.exports.PGReactiveQuery = require('./lib/pg-reactive-query').PGReactiveQuery;
